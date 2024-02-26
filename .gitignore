@@ -3,3 +3,5 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+cs2-cheeto-bindings/Cargo.lock
+/cs2-cheeto-bindings/target/
