@@ -9,12 +9,11 @@ mod tests {
     use std::mem::size_of;
     use windows::Win32::Foundation::{CloseHandle, HANDLE};
     use windows::Win32::System::Diagnostics::Debug::{ReadProcessMemory, WriteProcessMemory};
-    use windows::Win32::System::Threading;
-    use windows::Win32::System::Threading::{GetCurrentProcessId, OpenProcess};
+    use windows::Win32::System::Threading::{GetCurrentProcessId, OpenProcess, PROCESS_ALL_ACCESS};
 
     unsafe fn get_this_process_handle() -> windows::core::Result<HANDLE> {
         let pid = GetCurrentProcessId();
-        OpenProcess(Threading::PROCESS_ALL_ACCESS, false, pid)
+        OpenProcess(PROCESS_ALL_ACCESS, false, pid)
     }
     
     #[test]
@@ -22,17 +21,20 @@ mod tests {
         unsafe {
             let h_proc = get_this_process_handle().unwrap();
 
-            let n = 0;
-            let p_n = &n as *const _;
-            let buffer = 0;
-            let p_buf = &buffer as *const _;
+            let x = 12345;
+            let mut y = 0;
 
-            println!("n: {n}\nbuffer: {buffer}");
+            println!("x: {x}\ny: {y}");
 
-            ReadProcessMemory(h_proc, p_n as *const c_void, p_buf as *mut c_void, size_of::<i32>(), None)
+            ReadProcessMemory(
+                h_proc,
+                &x as *const i32 as *const c_void,
+                &mut y as *mut i32 as *mut c_void,
+                size_of::<i32>(),
+                None)
                 .unwrap();
 
-            println!("buffer after reading from n ({n}): {buffer}\n");
+            println!("y after reading to: {y}\n");
             CloseHandle(h_proc).unwrap();
         }
     }
@@ -42,18 +44,20 @@ mod tests {
         unsafe {
             let h_proc = get_this_process_handle().unwrap();
 
-            let n = 0;
-            let p_n = &n as *const _;
-            let buffer = 1_000_000;
-            let p_buf = &buffer as *const _;
+            let x = 54321;
+            let mut y = 0;
 
-            println!("n: {n}\nbuffer: {buffer}");
+            println!("x: {x}\ny: {y}");
 
-            let mut bytes_written = usize::default();
-            WriteProcessMemory(h_proc, p_n as *mut c_void, p_buf as *const c_void, size_of::<i32>(), Option::Some(&mut bytes_written as *mut usize))
+            WriteProcessMemory(
+                h_proc, 
+                &mut y as *const i32 as *mut c_void, 
+                &x as *const i32 as *const c_void, 
+                size_of::<i32>(), 
+                None)
                 .unwrap();
 
-            println!("buffer after writing from n ({n}): {buffer}\n");
+            println!("y after writing to: {y}\n");
             CloseHandle(h_proc).unwrap()
         }
     }
