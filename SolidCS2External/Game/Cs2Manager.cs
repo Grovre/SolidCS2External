@@ -63,20 +63,33 @@ public class Cs2Manager
         return viewAngles;
     }
 
-    public void AimAt(Vector3 target)
+    public void AimAt(Vector3 target, bool useRust = true)
     {
         const float smoothingFactor = 1;
+        
         if (LocalPlayer is null) return;
         var origin = LocalPlayer.GameSceneNode.Origin.Value.GetValueOrDefault();
         if (origin == Vector3.Zero) return;
         var viewOffset = LocalPlayer.ViewOffset.Value.GetValueOrDefault();
+        var currentViewAngle = GetViewAngles();
+
+        if (useRust)
+        {
+            var newViewAngle = RustBindings.aim_at(origin, viewOffset, currentViewAngle, target, smoothingFactor);
+            if (newViewAngle == Vector3.Zero)
+                return;
+            
+            SetViewAngles(newViewAngle);
+            _logger.Verbose("Aimed at target with rust bindings");
+            return;
+        }
+        
         var myPos = origin + viewOffset;
         var deltaVec = target - myPos;
         var deltaVecLength = Math.Sqrt(deltaVec.X * deltaVec.X + deltaVec.Y * deltaVec.Y + deltaVec.Z * deltaVec.Z);
         var pitch = (float)-Math.Asin(deltaVec.Z / deltaVecLength) * (180 / (float)Math.PI);
         var yaw = (float)Math.Atan2(deltaVec.Y, deltaVec.X) * (180 / (float)Math.PI);
         if (!(pitch >= -89) || !(pitch <= 89) || !(yaw >= -180) || !(yaw <= 180)) return;
-        var currentViewAngle = GetViewAngles();
         var newPitch = currentViewAngle.X + smoothingFactor * (pitch - currentViewAngle.X);
         var newYaw = currentViewAngle.Y + smoothingFactor * (yaw - currentViewAngle.Y);
         var currentAngles = new Vector3(
