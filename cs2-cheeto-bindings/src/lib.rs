@@ -11,12 +11,12 @@ pub extern "C" fn aim_at(
     let dv = target - my_pos;
     let dv_len = f32::sqrt(dv.x * dv.x + dv.y * dv.y + dv.z * dv.z);
 
-    let pitch = -f32::asin(dv.z / dv_len) * (180f32 / f32::PI());
+    let pitch = -f32::asin(dv.z / dv_len) * (180f32 / std::f32::consts::PI);
     if pitch < -89f32 || pitch > 89f32 {
         return Vector3::new(0f32, 0f32, 0f32);
     }
 
-    let yaw = f32::atan2(dv.y, dv.x) * (180f32 / f32::PI());
+    let yaw = f32::atan2(dv.y, dv.x) * (180f32 / std::f32::consts::PI);
     if yaw < -180f32 || yaw > 180f32 {
         return Vector3::new(0f32, 0f32, 0f32);
     }
