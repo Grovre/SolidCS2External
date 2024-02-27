@@ -1,6 +1,12 @@
 use nalgebra::Vector3;
 
-pub extern "C" fn aim_at(origin: Vector3<f32>, view_offset: Vector3<f32>, view_angles: Vector3<f32>, target: Vector3<f32>, smoothing_factor: f32) -> Vector3<f32> {
+pub extern "C" fn aim_at(
+    origin: Vector3<f32>,
+    view_offset: Vector3<f32>,
+    view_angles: Vector3<f32>,
+    target: Vector3<f32>,
+    smoothing_factor: f32,
+) -> Vector3<f32> {
     let my_pos = origin + view_offset;
     let dv = target - my_pos;
     let dv_len = f32::sqrt(dv.x * dv.x + dv.y * dv.y + dv.z * dv.z);
@@ -21,8 +27,6 @@ pub extern "C" fn aim_at(origin: Vector3<f32>, view_offset: Vector3<f32>, view_a
 
     new_angles
 }
-
-
 
 #[cfg(test)]
 mod tests {
@@ -52,8 +56,9 @@ mod tests {
                 &x as *const i32 as *const c_void,
                 &mut y as *mut i32 as *mut c_void,
                 size_of::<i32>(),
-                None)
-                .unwrap();
+                None,
+            )
+            .unwrap();
 
             println!("y after reading to: {y}\n");
             CloseHandle(h_proc).unwrap();
@@ -75,8 +80,9 @@ mod tests {
                 &mut y as *const i32 as *mut c_void,
                 &x as *const i32 as *const c_void,
                 size_of::<i32>(),
-                None)
-                .unwrap();
+                None,
+            )
+            .unwrap();
 
             println!("y after writing to: {y}\n");
             CloseHandle(h_proc).unwrap()
